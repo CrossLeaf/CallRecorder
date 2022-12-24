@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             .setRecordFileName("")
             .setRecordDirName("CallRecorderTest")
             .setRecordDirPath(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).absolutePath)
-            .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+            .setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
             .setShowSeed(true)
             .setShowPhoneNumber(true)
             .build()
