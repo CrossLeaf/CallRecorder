@@ -1,42 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
     <Button
         android:id="@+id/buttonStopCallRecord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/buttonStartCallRecord"
-        android:layout_below="@+id/buttonStartCallRecord"
         android:layout_marginTop="21dp"
         android:onClick="StopCallRecordClick"
-        android:text="Stop Call Record" />
+        android:text="Stop Call Record"
+        app:layout_constraintStart_toStartOf="@+id/buttonStartCallRecord"
+        app:layout_constraintTop_toBottomOf="@+id/buttonStartCallRecord" />
 
     <Button
         android:id="@+id/buttonStartCallRecord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_marginTop="19dp"
         android:onClick="StartCallRecordClick"
-        android:text="Start Call Record" />
+        android:text="Start Call Record"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinnerAudioSource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonStopCallRecord" />
 
     <TextView
         android:id="@+id/tvPath"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonStopCallRecord"
-        android:layout_alignParentStart="true"
+        android:layout_below="@+id/spinnerAudioSource"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="test" />
-</RelativeLayout>
+        android:text="test"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerAudioSource" />
+</androidx.constraintlayout.widget.ConstraintLayout>

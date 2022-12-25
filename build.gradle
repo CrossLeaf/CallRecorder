@@ -34,7 +34,7 @@ task clean(type: Delete) {
 
 ext {
     sdk = 28
-    minSdk = 17
+    minSdk = 26
     libraryVersion = "1.5.0"
     libraryVersionCode = 19
 }
