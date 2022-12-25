@@ -4,25 +4,33 @@ import android.Manifest
 import android.app.ActivityManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.aykuttasil.callrecord.CallRecord
 import com.aykuttasil.callrecord.helper.LogUtils
+import com.aykuttasil.callrecord.helper.PrefsHelper
+import java.io.File
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
     }
-
+    private lateinit var tvPath:TextView
     private lateinit var callRecord: CallRecord
+
     private val PERMISSIONS_REQUEST_CODE = 123
     val permissionList = listOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -37,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        tvPath = findViewById(R.id.tvPath)
         LogUtils.d(Environment.getExternalStorageDirectory().absolutePath)
         callRecord = CallRecord.Builder(this)
             .setLogEnable(true)
@@ -47,7 +56,8 @@ class MainActivity : AppCompatActivity() {
             .setShowSeed(true)
             .setShowPhoneNumber(true)
             .build()
-        callRecord.startCallReceiver()
+
+        showSavePath()
 //        callRecord.startCallRecordService()
 //        callRecord.changeReceiver(MyCallRecordReceiver(callRecord));
 
@@ -106,20 +116,6 @@ class MainActivity : AppCompatActivity() {
         return counter
     }
 
-    fun processPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ): Boolean {
-        var result = 0
-        if (grantResults.isNotEmpty()) {
-            for (item in grantResults) {
-                result += item
-            }
-        }
-        if (result == PackageManager.PERMISSION_GRANTED) return true
-        return false
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -157,5 +153,12 @@ class MainActivity : AppCompatActivity() {
 
         //callRecord.disableSaveFile();
         //callRecord.changeRecordFileName("NewFileName");
+    }
+
+    fun showSavePath() {
+        tvPath.text =
+        PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_PATH)
+            .plus(File.separator)
+            .plus(PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_NAME))
     }
 }
