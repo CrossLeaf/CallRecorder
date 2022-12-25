@@ -104,6 +104,19 @@ class CallRecord private constructor(private val mContext: Context) {
         LogUtils.i("CallRecord", "New dir path: $newDirPath")
     }
 
+    fun changeRecordAudioSource(audioSource: Int?) {
+        if (audioSource == null) {
+            try {
+                throw Exception("audioSource can not be null")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return
+            }
+        }
+        PrefsHelper.writePrefInt(mContext, PREF_AUDIO_SOURCE, audioSource)
+        LogUtils.i("CallRecord", "New audio source: $audioSource")
+    }
+
     fun changeReceiver(receiver: CallRecordReceiver) {
         mCallRecordReceiver = receiver
     }

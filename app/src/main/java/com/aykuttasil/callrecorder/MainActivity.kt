@@ -4,16 +4,13 @@ import android.Manifest
 import android.app.ActivityManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
 import android.media.MediaRecorder
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.Log
 import android.view.View
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,18 +18,27 @@ import com.aykuttasil.callrecord.CallRecord
 import com.aykuttasil.callrecord.helper.LogUtils
 import com.aykuttasil.callrecord.helper.PrefsHelper
 import java.io.File
-import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
+        private const val PERMISSIONS_REQUEST_CODE = 123
     }
-    private lateinit var tvPath:TextView
+
+    private lateinit var tvPath: TextView
+    private lateinit var spinner: Spinner
     private lateinit var callRecord: CallRecord
 
-    private val PERMISSIONS_REQUEST_CODE = 123
-    val permissionList = listOf(
+    private val audioSourceList = mutableMapOf(
+        Pair(MediaRecorder.AudioSource.VOICE_RECOGNITION, "VOICE_RECOGNITION"),
+        Pair(MediaRecorder.AudioSource.VOICE_CALL, "VOICE_CALL"),
+        Pair(MediaRecorder.AudioSource.VOICE_COMMUNICATION, "VOICE_COMMUNICATION"),
+        Pair(MediaRecorder.AudioSource.MIC, "MIC")
+    )
+    private lateinit var audioSourceAdapter : ArrayAdapter<String>
+
+    private val permissionList = listOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.RECORD_AUDIO,
@@ -46,7 +52,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tvPath = findViewById(R.id.tvPath)
-        LogUtils.d(Environment.getExternalStorageDirectory().absolutePath)
+        spinner = findViewById(R.id.spinnerAudioSource)
+
+        // init callRecord
         callRecord = CallRecord.Builder(this)
             .setLogEnable(true)
             .setRecordFileName("")
@@ -56,6 +64,20 @@ class MainActivity : AppCompatActivity() {
             .setShowSeed(true)
             .setShowPhoneNumber(true)
             .build()
+        audioSourceAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, audioSourceList.values.toTypedArray())
+        // init spinner
+        spinner.apply {
+            adapter = audioSourceAdapter
+            onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    callRecord.changeRecordAudioSource(audioSourceList.asIterable().elementAt(position).key)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
+        }
+
 
         showSavePath()
 //        callRecord.startCallRecordService()
@@ -74,6 +96,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         checkPermissions()
+    }
+
+    override fun onDestroy() {
+        LogUtils.i(TAG, "onDestroy StopCallRecordClick")
+        // 不需要關閉 app 取消監聽的話要移除
+        callRecord.stopCallReceiver()
+        super.onDestroy()
     }
 
     fun checkPermissions() {
@@ -121,6 +150,7 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             var result = 0
             for (item in grantResults) {
@@ -157,8 +187,8 @@ class MainActivity : AppCompatActivity() {
 
     fun showSavePath() {
         tvPath.text =
-        PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_PATH)
-            .plus(File.separator)
-            .plus(PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_NAME))
+            PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_PATH)
+                .plus(File.separator)
+                .plus(PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_NAME))
     }
 }
